@@ -60,4 +60,5 @@ A vessel has one or many locations
 
 For the sake of simplicity a location belongs to a vessel
 
-
+## Code and repo
+In this repo, you will find different work branches (VSS-XX---some-feature). All of them are merged on the main branch along the way (using github PR, for simplicity I kept main as the develop branch).
