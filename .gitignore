@@ -245,5 +245,5 @@ GitHub.sublime-settings
 images
 
 **/staticfiles/
-
+**/.~lock*
 portainer/
