@@ -41,3 +41,9 @@ You have a CSV File with an initial list of vessel positions.
 Please push your design, explanations and code to a private repository and send us an invit.
 
 Please do not upload your result on a public repository or website.
+
+## Implementation 
+* a simple REST API with django (no USER authentication to keep things simple)
+* a front-end app in Vue and TypeScript
+* Websocket communication using django channels
+* Dockerized app : backend, frontend, db
