@@ -42,8 +42,8 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
-    expose:
-      - ${POSTGRES_DOCKER_PORT}
+    ports:
+      - "${POSTGRES_DOCKER_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgres/data/
     healthcheck:
@@ -58,8 +58,9 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
+      - PGADMIN_LISTEN_PORT=${PGADMIN_PORT}
     ports:
-      - "9050:80"
+      - "${PGADMIN_PORT}:${PGADMIN_PORT}"
     depends_on:
       - shipster-db
     restart: always
