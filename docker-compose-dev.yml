@@ -1,0 +1,81 @@
+version: '3'
+
+services:
+  shipster-app:
+    container_name: shipster-app
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile.backend
+      args:
+        - DEV=true
+    env_file: .env
+    ports:
+      - ${DJANGO_DOCKER_PORT}:8080
+    volumes:
+      - ./backend:/app
+      - ./specs:/specs
+    command: >
+      sh -c "python3 /app/manage.py migrate --noinput && gunicorn shipster.wsgi -b 0.0.0.0:8080"
+    depends_on:
+      shipster-db:
+        condition: service_healthy
+
+  shipster-ui:
+    restart: always
+    env_file: .env
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile.ui.dev
+    container_name: shipster-frontend
+    depends_on:
+      - shipster-app
+      - shipster-db
+    volumes:
+      - ./frontend/src:/frontend/src
+    ports:
+      - 3000:3000
+
+  shipster-db:
+    container_name: shipster-db
+    image: "postgis/postgis:${POSTGRES_VERSION}"
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    expose:
+      - ${POSTGRES_DOCKER_PORT}
+    volumes:
+      - postgres_data:/var/lib/postgres/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  shipster-pgadmin:
+    container_name: shipster-pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
+    ports:
+      - "9050:80"
+    depends_on:
+      - shipster-db
+    restart: always
+    
+  shipster-portainer:
+    image: portainer/portainer-ce:latest
+    container_name: shipster-portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./portainer:/data
+    ports:
+      - 9000:9000
+
+volumes:
+   postgres_data:
