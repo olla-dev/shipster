@@ -31,6 +31,7 @@ RUN if [ $DEV = "true" ] ; \
        then pip install -r ./requirements.dev.txt ; \
     fi;
 
+# run migrations and create default super user
 COPY ./.env ./.env
 
 RUN adduser -D panda

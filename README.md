@@ -50,3 +50,14 @@ Please do not upload your result on a public repository or website.
 
 ### Handling Geo data
 I'm going to use the GIS extension to handle location data (Points). The REST API will be output paginated vessel locations to the clients.
+
+### Database
+In order to handle vessels and their changing geolocations, I will have a basic two models in DB: 
+* Vessel (vessel properties, for the moment it only has a vessel_id)
+* Location (A geolocation and timestamp)
+
+A vessel has one or many locations
+
+For the sake of simplicity a location belongs to a vessel
+
+
