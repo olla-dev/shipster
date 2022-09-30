@@ -15,12 +15,12 @@ services:
       - ./backend:/app
       - ./specs:/specs
     command: >
-      sh -c "python3 /app/manage.py migrate --noinput && gunicorn shipster.wsgi -b 0.0.0.0:8080"
+      sh -c "python3 /app/manage.py migrate --noinput && gunicorn core.wsgi -b 0.0.0.0:8080"
     depends_on:
       shipster-db:
         condition: service_healthy
 
-  shipster-ui:
+  shipster-frontend:
     restart: always
     env_file: .env
     build:

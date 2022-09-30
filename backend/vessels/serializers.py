@@ -7,14 +7,6 @@ class VesselSerializer(serializers.ModelSerializer):
         model = Vessel
         fields = (
             'id' ,
-            'title',
-            'type',
-            'rating',
-            'description',
-            'start_date',
-            'end_date',
+            'vessel_id',
             'geo_location',
-            'step_index_in_trip',
-            'rating',
-            'images'
         )

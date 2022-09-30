@@ -23,7 +23,7 @@ from core.settings import MEDIA_URL, MEDIA_ROOT
 
 
 router = routers.DefaultRouter()
-router.register(r'vessels/', vessel_views.TripView, 'vessel_list')
+router.register(r'vessels/', vessel_views.VesselView, 'vessel_list')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

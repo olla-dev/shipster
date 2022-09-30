@@ -46,7 +46,7 @@ Please do not upload your result on a public repository or website.
 * a simple REST API with django (no USER authentication to keep things simple)
 * a front-end app in Vue and TypeScript
 * Websocket communication using django channels
-* Dockerized app : backend, frontend, db
+* Dockerized apps : backend (8080), frontend (3000), db (postgresql: 5432)
 
 ### Handling Geo data
 I'm going to use the GIS extension to handle location data (Points). The REST API will be output paginated vessel locations to the clients.
