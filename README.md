@@ -60,5 +60,14 @@ A vessel has one or many locations
 
 For the sake of simplicity a location belongs to a vessel
 
+### REST API
+* GET /api/v1/vessels/ : returns a paginated list of vessels
+* GET /api/v1/vessels/{vessel_id}/locations/ : returns the paginated list of locations for a specific vessel 
+* POST /api/v1/vessels/{vessel_id}/locations/: adds a location to the vessel
+* PUT  /api/v1/vessels/{vessel_id}/locations/{location_id}: update location properties
+* DELETE /api/v1/vessels/{vessel_id}/locations/{location_id}: deletes location
+* GET /api/v1/vessels/geo/: returns a GeoJson for the latest vessel locations
+* GET /api/v1/vessels/csv/: returns a flat paginated list similar to the csv in the specs
+
 ## Code and repo
 In this repo, you will find different work branches (VSS-XX---some-feature). All of them are merged on the main branch along the way (using github PR, for simplicity I kept main as the develop branch).

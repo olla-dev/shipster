@@ -22,11 +22,13 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from core.settings import MEDIA_URL, MEDIA_ROOT
 
 
-router = routers.DefaultRouter()
-router.register(r'vessels/', vessel_views.VesselView, 'vessel_list')
+router = routers.SimpleRouter(trailing_slash=True)
+router.register(r'vessels', vessel_views.VesselView, 'vessel_list')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include(router.urls)),
+    path('api/v1/vessels/csv', vessel_views.VesselCsvView.as_view()),
+    path('api/v1/vessels/geo', vessel_views.VesselGeoView.as_view()),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()
