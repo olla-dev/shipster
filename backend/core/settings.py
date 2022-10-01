@@ -30,12 +30,8 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'shipsters-ui']
 CORS_ORIGIN_ALLOW_ALL = False
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
 }
 
 # Application definition
@@ -50,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'corsheaders',
     'rest_framework',
+    'rest_framework_gis',
     'vessels',
 ]
 
