@@ -6,3 +6,6 @@ django-environ
 psycopg2-binary
 gunicorn
 pytest
+
+# to profile api calls, there is probably a better solution to this using prometheus and grafana?
+drf-api-logger 

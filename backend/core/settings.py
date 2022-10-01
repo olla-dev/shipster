@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_gis',
     'vessels',
+    'drf_api_logger',  #  API Call Logger
 ]
 
 CORS_ORIGIN_WHITELIST = [
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'drf_api_logger.middleware.api_logger_middleware.APILoggerMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -144,3 +146,6 @@ APPEND_SLASH=False
 
 GDAL_LIBRARY_PATH=glob('/usr/lib/libgdal.so.*')[0]
 GEOS_LIBRARY_PATH=glob('/usr/lib/libgeos_c.so.*')[0]
+
+# API Call Logger
+DRF_API_LOGGER_DATABASE = True
