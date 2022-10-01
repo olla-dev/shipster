@@ -59,7 +59,7 @@ class Command(BaseCommand):
                             row[received_time_utc_index], 
                             DATE_FORMAT
                         ),
-                        'geo_location': Point(float(row[latitude_index]), float(row[longitude_index]))
+                        'point': Point(float(row[longitude_index]), float(row[latitude_index]))
                     }
                 )
             file.close()

@@ -9,13 +9,14 @@ class Vessel(models.Model):
         indexes = [
             models.Index(fields=['vessel_id'], name='vessel_id_idx')
         ]
+        ordering = ['-vessel_id']
 
     def __str__(self):
         return "%s" % (self.vessel_id)
 
 class Location(models.Model):
     received_time_utc = models.DateTimeField(null=False, blank=False)
-    geo_location = geo.PointField(srid=4326, null=False, blank=False)
+    point = geo.PointField(srid=4326, null=False, blank=False)
     vessel = models.ForeignKey(
         Vessel, 
         related_name="locations", 
