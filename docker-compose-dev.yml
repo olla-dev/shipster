@@ -17,8 +17,10 @@ services:
     command: >
       sh -c "python3 /app/manage.py migrate --noinput && gunicorn core.wsgi -b 0.0.0.0:8080"
     depends_on:
+      shipster-cache:
+          condition: service_healthy
       shipster-db:
-        condition: service_healthy
+          condition: service_healthy
 
   shipster-frontend:
     restart: always
@@ -51,6 +53,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  shipster-cache:
+    image: redis:latest
+    restart: always
+    container_name: shipster-cache
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    volumes: 
+      - cache:/data
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   shipster-pgadmin:
     container_name: shipster-pgadmin
@@ -80,3 +96,4 @@ services:
 
 volumes:
    postgres_data:
+   cache:

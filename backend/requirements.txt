@@ -9,3 +9,6 @@ pytest
 
 # to profile api calls, there is probably a better solution to this using prometheus and grafana?
 drf-api-logger 
+
+# Caching server
+django-redis
