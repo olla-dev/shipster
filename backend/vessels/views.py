@@ -9,17 +9,19 @@ class VesselView(viewsets.ReadOnlyModelViewSet):
     model = Vessel
     pagination_class = ResultPagination
     serializer_class = VesselModelSerializer
-    queryset = Vessel.objects.all()
+    queryset = Vessel.objects.prefetch_related('locations').all()
 
 class VesselCsvView(ListAPIView):
     model = Location
     serializer_class = CsvModelSerializer
     pagination_class = ResultPagination
-    queryset = Location.objects.all()
+    # select_related is very important here to reduce 
+    # the number of db queries!!!!
+    queryset = Location.objects.select_related('vessel').all()
     
 
 class VesselGeoView(ListAPIView):
     model = Vessel
     serializer_class = VesselGeoSerializer
     pagination_class = ResultPagination
-    queryset = Vessel.objects.all()
+    queryset = Vessel.objects.prefetch_related('locations').all()
