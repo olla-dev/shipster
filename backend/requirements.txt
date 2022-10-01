@@ -1,5 +1,6 @@
 Django
 djangorestframework
+djangorestframework-gis
 django-cors-headers
 django-environ
 psycopg2-binary
