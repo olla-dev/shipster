@@ -42,7 +42,12 @@ class VesselGeoSerializer(GeoFeatureModelSerializer):
     
     def get_properties(self, instance, fields):
         location = Location.objects.filter(vessel__vessel_id=instance.vessel_id).latest('received_time_utc')
-        return {'vessel_id': instance.vessel_id, 'received_time_utc': location.received_time_utc }
+        return {
+            'vessel_id': instance.vessel_id, 
+            'received_time_utc': location.received_time_utc,
+            'latitude': location.point.coords[0],
+            'longitude': location.point.coords[1] 
+        }
     
     def get_location(self, obj):
         location = Location.objects.filter(vessel__vessel_id=obj.vessel_id).latest('received_time_utc')

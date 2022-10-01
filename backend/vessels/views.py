@@ -5,7 +5,6 @@ from rest_framework.generics import ListAPIView
 
 from .models import Location, Vessel
 
-
 class VesselView(viewsets.ReadOnlyModelViewSet):
     model = Vessel
     pagination_class = ResultPagination
