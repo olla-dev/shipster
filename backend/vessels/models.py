@@ -7,7 +7,7 @@ class Vessel(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['vessel_id'], name='vessel_id_idx')
+            models.Index(fields=['vessel_id', 'id'], name='vessel_id_idx')
         ]
         ordering = ['-vessel_id']
 
@@ -15,6 +15,7 @@ class Vessel(models.Model):
         return "%s" % (self.vessel_id)
 
 class Location(models.Model):
+    id = models.AutoField(primary_key=True)
     received_time_utc = models.DateTimeField(null=False, blank=False)
     point = geo.PointField(srid=4326, null=False, blank=False)
     vessel = models.ForeignKey(
@@ -27,7 +28,7 @@ class Location(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['received_time_utc'], name='received_time_utc_idx')
+            models.Index(fields=['received_time_utc', 'id'], name='received_time_utc_idx')
         ]
     
     def __str__(self):
