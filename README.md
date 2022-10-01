@@ -69,5 +69,13 @@ For the sake of simplicity a location belongs to a vessel
 * GET /api/v1/vessels/geo/: returns a GeoJson for the latest vessel locations
 * GET /api/v1/vessels/csv/: returns a flat paginated list similar to the csv in the specs
 
+#### Performance
+The API handles large data. This data is read regularely.
+Many techniques can optimize Performance like: 
+
+* Reduce DB queries by optimizing querysets
+* Caching: I used django-redis and cached CBVs. It is possible to cache Model objects (relying on django's built in queryset caching)
+
+
 ## Code and repo
 In this repo, you will find different work branches (VSS-XX---some-feature). All of them are merged on the main branch along the way (using github PR, for simplicity I kept main as the develop branch).
