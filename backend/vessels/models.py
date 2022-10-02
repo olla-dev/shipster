@@ -28,6 +28,7 @@ class Location(models.Model):
         indexes = [
             models.Index(fields=['received_time_utc', 'id'], name='received_time_utc_idx')
         ]
+        ordering = ['-received_time_utc']
     
     def __str__(self):
         return "Vessel %s (%s)" % (self.vessel.vessel_id, self.received_time_utc)
