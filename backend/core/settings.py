@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework_gis',
     'vessels',
     'drf_api_logger',  #  API Call Logger
+    'cachalot'
 ]
 
 CORS_ORIGIN_WHITELIST = [
@@ -114,6 +115,8 @@ CACHES = {
         }
     }
 }
+CACHALOT_TIMEOUT=int(CACHE_TTL)
+CACHALOT_ONLY_CACHABLE_APPS=frozenset(('vessels',))
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
