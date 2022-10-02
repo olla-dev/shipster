@@ -16,17 +16,23 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework_nested import routers
 from vessels import views as vessel_views
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from core.settings import MEDIA_URL, MEDIA_ROOT
 
 
-router = routers.DefaultRouter()
-router.register(r'vessels/', vessel_views.VesselView, 'vessel_list')
+router = routers.SimpleRouter(trailing_slash=True)
+router.register('vessels', vessel_views.VesselView, 'vessel-list')
+locations_router = routers.NestedSimpleRouter(router, r'vessels', lookup='vessel')
+locations_router.register(r'locations', vessel_views.LocationView, basename='vessel-locations')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include(router.urls)),
+    path('api/v1/', include(locations_router.urls)),
+    path('api/v1/vessels/csv', vessel_views.VesselCsvView.as_view()),
+    path('api/v1/vessels/geo', vessel_views.VesselGeoView.as_view()),
 ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()

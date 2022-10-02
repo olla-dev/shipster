@@ -1,7 +1,6 @@
 from io import StringIO
 import csv
 import os
-from sys import stderr
 
 from django.test import TestCase
 from django.core import management

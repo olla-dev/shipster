@@ -30,12 +30,8 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'shipsters-ui']
 CORS_ORIGIN_ALLOW_ALL = False
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
 }
 
 # Application definition
@@ -50,7 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'corsheaders',
     'rest_framework',
+    'rest_framework_gis',
     'vessels',
+    'drf_api_logger',  #  API Call Logger
 ]
 
 CORS_ORIGIN_WHITELIST = [
@@ -66,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'drf_api_logger.middleware.api_logger_middleware.APILoggerMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -103,6 +102,18 @@ DATABASES = {
     }
 }
 
+# Caching 
+CACHE_TTL = int(os.environ.get('CACHE_TTL'))
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": os.environ.get('REDIS_PASSWORD')
+        }
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -147,3 +158,6 @@ APPEND_SLASH=False
 
 GDAL_LIBRARY_PATH=glob('/usr/lib/libgdal.so.*')[0]
 GEOS_LIBRARY_PATH=glob('/usr/lib/libgeos_c.so.*')[0]
+
+# API Call Logger
+DRF_API_LOGGER_DATABASE = True

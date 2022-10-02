@@ -1,8 +1,9 @@
-from django.utils.timezone import make_aware
 from django.contrib.gis.geos import Point
+from django.utils import timezone
 import csv
 from django.core.management.base import BaseCommand, CommandError
-from datetime import datetime, timedelta
+from datetime import datetime
+from django.core.cache import cache
 from vessels.models import Location, Vessel
 
 CSV_VESSEL_ID_HEADER = 'vessel_id'
@@ -35,6 +36,9 @@ class Command(BaseCommand):
             or not CSV_LONGITUDE_HEADER in header_row:
             self.stderr.write("CSV Structure is wrong?")
         else:
+            # invalidate all caches 
+            cache.clear()
+
             vessel_id_index = header_row.index('vessel_id')
             received_time_utc_index = header_row.index('received_time_utc')
             latitude_index = header_row.index('latitude')
@@ -59,7 +63,7 @@ class Command(BaseCommand):
                             row[received_time_utc_index], 
                             DATE_FORMAT
                         ),
-                        'geo_location': Point(float(row[latitude_index]), float(row[longitude_index]))
+                        'point': Point(float(row[longitude_index]), float(row[latitude_index]))
                     }
                 )
             file.close()
