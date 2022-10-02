@@ -10,11 +10,12 @@ from .models import Location, Vessel
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class VesselView(viewsets.ReadOnlyModelViewSet):
+    '''This ViewSet serves all vessel info with their latest ResultPagination.page_size recent locations'''
     model = Vessel
     pagination_class = ResultPagination
     serializer_class = VesselModelSerializer
     lookup_field='vessel_id'
-    queryset = Vessel.objects.prefetch_related('locations').all()
+    queryset = Vessel.objects.all()
 
 @method_decorator(cache_page(CACHE_TTL), name='get')
 class VesselCsvView(generics.ListAPIView):
@@ -32,11 +33,13 @@ class VesselGeoView(generics.ListAPIView):
     pagination_class = ResultPagination
     queryset = Vessel.objects.prefetch_related('locations').all()
 
+@method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class LocationView(viewsets.ModelViewSet):
     """
     Retrieve, update or delete a location instance.
     """
     serializer_class = LocationModelSerializer
+    pagination_class = ResultPagination
 
     def get_queryset(self):
         # here drf-nested-router appends parent name to the query param, hence use vessel_vessel_id below

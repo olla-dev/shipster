@@ -1,4 +1,6 @@
-from rest_framework import serializers, pagination
+from vessels.pagination import ResultPagination
+from rest_framework import serializers
+from django.core.paginator import Paginator
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .serializers import *
 from .models import Location, Vessel
@@ -75,8 +77,15 @@ class VesselModelSerializer(serializers.ModelSerializer):
         fields = ('vessel_id', 'locations',)
     
     def get_locations(self, obj):
-        locations = Location.objects.filter(vessel__vessel_id=obj.vessel_id)
-        return LocationModelSerializer(locations, many=True).data
+        page_size = ResultPagination.page_size
+        paginator = Paginator(
+            Location.objects.filter(vessel__vessel_id=obj.vessel_id),
+            page_size
+        )
+        locations = paginator.page(1)
+        return Paginator.get_paginated_response(
+            LocationModelSerializer(locations, many=True).data
+        )
 
 class CsvModelSerializer(serializers.ModelSerializer):
     '''Serializes all locations as csv rows'''
