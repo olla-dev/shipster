@@ -12,3 +12,6 @@ drf-api-logger
 
 # Caching server
 django-redis
+
+# A nice helper to get nested routers 
+drf-nested-routers

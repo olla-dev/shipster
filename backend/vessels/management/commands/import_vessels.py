@@ -1,5 +1,5 @@
-from django.utils.timezone import make_aware
 from django.contrib.gis.geos import Point
+from django.utils import timezone
 import csv
 from django.core.management.base import BaseCommand, CommandError
 from datetime import datetime

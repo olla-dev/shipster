@@ -1,6 +1,7 @@
 from .pagination import ResultPagination
+from rest_framework.response import Response
 from .serializers import CsvModelSerializer, LocationModelSerializer, VesselGeoSerializer, VesselModelSerializer
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 
@@ -37,7 +38,20 @@ class LocationView(viewsets.ModelViewSet):
     """
     serializer_class = LocationModelSerializer
 
-    def get_queryset(self, *args, **kwargs):
+    def get_queryset(self):
         # here drf-nested-router appends parent name to the query param, hence use vessel_vessel_id below
         vessel_id = self.kwargs['vessel_vessel_id']
         return Location.objects.select_related('vessel').filter(vessel__vessel_id=vessel_id)
+    
+    def create(self, request, *args, **kwargs):
+        vessel_id = self.kwargs['vessel_vessel_id']
+        
+        # automatically assign vessel to the new location 
+        vessel = Vessel.objects.get(vessel_id=vessel_id)
+        serializer = self.serializer_class(data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save(vessel=vessel)
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
