@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.gis.db import models as geo
 
 class Vessel(models.Model):
-    vessel_id = models.BigIntegerField(null=True, blank=True)
+    vessel_id = models.BigIntegerField(unique=True, null=True, blank=True)
 
     class Meta:
         indexes = [
