@@ -69,6 +69,19 @@ services:
       timeout: 5s
       retries: 5
 
+  shipster-cache-ui:
+    container_name: shipster-cache-ui
+    hostname: shipster-cache-ui
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOST=${REDIS_HOST}
+    - REDIS_PORT=${REDIS_PORT}
+    - REDIS_PASSWORD=${REDIS_PASSWORD}
+    - REDIS_DB=1
+    ports:
+    - "8081:8081"
+
   shipster-pgadmin:
     container_name: shipster-pgadmin
     image: dpage/pgadmin4:latest
