@@ -2,7 +2,7 @@
 Track cargo vessels - Kpler Technical Test
 
 ## Requirements
-Read [here](./REQUIREMENTS.md.md)
+Read [here](./REQUIREMENTS.md)
 
 ## Implementation 
 * a simple REST API with django (no USER authentication to keep things simple)
