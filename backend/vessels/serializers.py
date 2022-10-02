@@ -83,9 +83,7 @@ class VesselModelSerializer(serializers.ModelSerializer):
             page_size
         )
         locations = paginator.page(1)
-        return Paginator.get_paginated_response(
-            LocationModelSerializer(locations, many=True).data
-        )
+        return LocationModelSerializer(locations, many=True).data
 
 class CsvModelSerializer(serializers.ModelSerializer):
     '''Serializes all locations as csv rows'''
