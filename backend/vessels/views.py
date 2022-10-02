@@ -15,7 +15,10 @@ class VesselView(viewsets.ReadOnlyModelViewSet):
     pagination_class = ResultPagination
     serializer_class = VesselModelSerializer
     lookup_field='vessel_id'
-    queryset = Vessel.objects.all()
+    # Optimization: 
+    # I should use a cursor pagination if a vessel has a huge list of locations.
+    # will try to do it, if I finish the UI :/
+    queryset = Vessel.objects.prefetch_related('locations').all()
 
 @method_decorator(cache_page(CACHE_TTL), name='get')
 class VesselCsvView(generics.ListAPIView):
@@ -31,6 +34,9 @@ class VesselGeoView(generics.ListAPIView):
     model = Vessel
     serializer_class = VesselGeoSerializer
     pagination_class = ResultPagination
+    # Optimization: 
+    # I should use a cursor pagination if a vessel has a huge list of locations.
+    # will try to do it, if I finish the UI :/
     queryset = Vessel.objects.prefetch_related('locations').all()
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
