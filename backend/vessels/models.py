@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.gis.db import models as geo
 
 class Vessel(models.Model):
-    id = models.AutoField(primary_key=True)
     vessel_id = models.BigIntegerField(null=True, blank=True)
 
     class Meta:
@@ -15,7 +14,6 @@ class Vessel(models.Model):
         return "%s" % (self.vessel_id)
 
 class Location(models.Model):
-    id = models.AutoField(primary_key=True)
     received_time_utc = models.DateTimeField(null=False, blank=False)
     point = geo.PointField(srid=4326, null=False, blank=False)
     vessel = models.ForeignKey(

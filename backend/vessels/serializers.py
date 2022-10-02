@@ -14,6 +14,7 @@ class LocationGeoPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = (
+            'id',
             'received_time_utc',
             'point'
         )
@@ -59,6 +60,7 @@ class LocationModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = (
+            'id',
             'received_time_utc',
             'point',
         )
