@@ -10,15 +10,13 @@
 
   export default defineComponent({
     name: 'HomeView',
-    components: {
-    },
     data() {
       return {
         accessToken: process.env.VUE_APP_MAP_ACCESS_TOKEN,
-        mapStyle: process.env.VUE_APP_MAP_ACCESS_STYLE,
+        mapStyle: process.env.VUE_APP_MAP_STYLE,
         center: [11.030, 37.915],
         zoom: 3,
-        map: {},
+        map: {} as mapboxgl.Map,
       }
     },
     mounted() {
@@ -34,6 +32,9 @@
             center: [11.030, 37.915],
             zoom: this.zoom,
           });
+          let marker1 = new mapboxgl.Marker()
+          .setLngLat([12.554729, 55.70651])
+          .addTo(this.map);
 
         } catch (err) {
           console.log("map error", err);
