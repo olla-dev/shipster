@@ -5,8 +5,9 @@
 </template>
 
 <script lang="ts">
-  import mapboxgl from 'mapbox-gl'
+  import mapboxgl from 'mapbox-gl';
   import { defineComponent } from 'vue';
+  import vesselModule from '@/store/vessels';
 
   export default defineComponent({
     name: 'HomeView',
@@ -20,6 +21,7 @@
       }
     },
     mounted() {
+      vesselModule.fetchVessels()
       this.createMap()
     },
     methods: {
@@ -32,10 +34,17 @@
             center: [11.030, 37.915],
             zoom: this.zoom,
           });
-          let marker1 = new mapboxgl.Marker()
-          .setLngLat([12.554729, 55.70651])
-          .addTo(this.map);
+          this.map.addControl(new mapboxgl.FullscreenControl());
 
+          // create a HTML element for each feature
+          const el = document.createElement('div');
+          el.className = 'marker';
+
+          // make a marker for each feature and add to the map
+          new mapboxgl
+            .Marker(el)
+            .setLngLat([11.030, 37.915])
+            .addTo(this.map);
         } catch (err) {
           console.log("map error", err);
         }
@@ -48,4 +57,10 @@
       width: 100%;
       height: calc(100vh - 80px);
     }
+    .marker {
+      background-image: url('../assets/ship.png');
+      background-size: cover;
+      cursor: pointer;
+    }
+
 </style>
