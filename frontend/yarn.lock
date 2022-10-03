@@ -1019,16 +1019,6 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@headlessui/vue@^1.7.3":
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/@headlessui/vue/-/vue-1.7.3.tgz#116d13391552436ea1e9e88c69f0e9d7d2585c45"
-  integrity sha512-Is4iakKts9u9E0+jEZNzoJpBjwq2SamwEIoEl2RlyYSu6Zco536GsPXaQEfg/o7Eyc1GUUlcL+dJd4Rt7qyf7A==
-
-"@heroicons/vue@^2.0.11":
-  version "2.0.11"
-  resolved "https://registry.yarnpkg.com/@heroicons/vue/-/vue-2.0.11.tgz#b228ed87b99ddf1e99faa56134a6a05a7c870a2d"
-  integrity sha512-nTfN4aZVCP8Xntt9Q9RvH+vDagFHA4zFCUge6oCdkBrELH1i6K9feubvnEMhRIYdwC+nWULqKyJP7iVoWkR6Eg==
-
 "@humanwhocodes/config-array@^0.5.0":
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.5.0.tgz#1407967d4c6eecd7388f83acf1eaf4d0c6e58ef9"
@@ -1595,6 +1585,11 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/geojson@*":
+  version "7946.0.10"
+  resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.10.tgz#6dfbf5ea17142f7f9a043809f1cd4c448cb68249"
+  integrity sha512-Nmh0K3iWQJzniTuPRcJn5hxXkfB1T1pgB89SBig5PlJQU5yocazeu4jATJlaA0GYFKWMqDdvYemoSnF2pXgLVA==
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
@@ -1645,6 +1640,13 @@
   version "7.0.11"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.11.tgz#d421b6c527a3037f7c84433fd2c4229e016863d3"
   integrity sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==
+
+"@types/mapbox-gl@^2.7.6":
+  version "2.7.6"
+  resolved "https://registry.yarnpkg.com/@types/mapbox-gl/-/mapbox-gl-2.7.6.tgz#87edd38d9ac4b72be5e293472488a2e21910ad58"
+  integrity sha512-EPIfNO7WApXaFM7DuJBj+kpXmqffqJHMJ3Q9gbV/nNL23XHR0PC5CCDYbAFa4tKErm0xJd9C5kPLF6KvA/cRcA==
+  dependencies:
+    "@types/geojson" "*"
 
 "@types/mime@*":
   version "3.0.1"
@@ -6280,11 +6282,6 @@ map-obj@^4.0.0:
   resolved "https://registry.yarnpkg.com/map-obj/-/map-obj-4.3.0.tgz#9304f906e93faae70880da102a9f1df0ea8bb05a"
   integrity sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==
 
-map-promisified@latest:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/map-promisified/-/map-promisified-0.4.0.tgz#c33cc8b93d2d28b0df0b0937ffabcd145b9b9a82"
-  integrity sha512-VYBQ3rTMykg2CSVgSrZBvhAwxuIuYbAHCtjjq/ATnD5kMq7I/ROmMBckwlmfwtEIx9yXufF+3QY5WxUH5EeM/Q==
-
 mapbox-gl@^2.10.0:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-2.10.0.tgz#bd6eb0a156d0ef3a72c3348598330ded75412c47"
@@ -8961,13 +8958,6 @@ vue-loader@^17.0.0:
     chalk "^4.1.0"
     hash-sum "^2.0.0"
     loader-utils "^2.0.0"
-
-vue-mapbox@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/vue-mapbox/-/vue-mapbox-0.4.1.tgz#c1cac11c33c46a78a2b58797686371a4c32ffb4a"
-  integrity sha512-F1ebtVpRSvl6HDiHCWm5TxBNDy5WCoNJOZWj4ub6XQzht15GfUpAn4bHIeVzrUHr3fi1PFEDbxnzPeG1S9o0Tg==
-  dependencies:
-    map-promisified latest
 
 vue-router@^4.0.3:
   version "4.1.5"

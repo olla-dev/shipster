@@ -1,34 +1,50 @@
 <template>
-  <div class="home">
-    Home
+  <div class="content">
+    <div class="map" id="map"></div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+  import mapboxgl from 'mapbox-gl'
+  import { defineComponent } from 'vue';
 
-export default defineComponent({
-  name: 'HomeView',
-  components: {
-  },
-});
+  export default defineComponent({
+    name: 'HomeView',
+    components: {
+    },
+    data() {
+      return {
+        accessToken: process.env.VUE_APP_MAP_ACCESS_TOKEN,
+        mapStyle: process.env.VUE_APP_MAP_ACCESS_STYLE,
+        center: [11.030, 37.915],
+        zoom: 3,
+        map: {},
+      }
+    },
+    mounted() {
+      this.createMap()
+    },
+    methods: {
+      async createMap() {
+        try {
+          mapboxgl.accessToken = this.accessToken;
+          this.map = new mapboxgl.Map({
+            container: "map",
+            style: this.mapStyle,
+            center: [11.030, 37.915],
+            zoom: this.zoom,
+          });
+
+        } catch (err) {
+          console.log("map error", err);
+        }
+      },
+    },
+  })
 </script>
 <style>
-  #app {
-      font-family: 'Avenir', Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-align: center;
-      color: #2c3e50;
+    #map {
+      width: 100%;
+      height: calc(100vh - 80px);
     }
-    #nav {
-      padding: 30px;
-      a {
-        font-weight: bold;
-        color: #2c3e50;
-        &.router-link-exact-active {
-          color: #42b983;
-        }
-      }
-    }
-  </style>
+</style>
