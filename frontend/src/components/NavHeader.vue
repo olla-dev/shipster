@@ -21,9 +21,15 @@
         <div class="navbar-start">
           <router-link to="/" class="navbar-item icon-text">
               <span class="icon">
-                <i class="fa fa-home"></i>
+                <i class="fa fa-map"></i>
               </span>
-              <span>Home</span>
+              <span>Vessels</span>
+          </router-link>
+          <router-link to="/csv" class="navbar-item icon-text">
+              <span class="icon">
+                <i class="fa fa-table"></i>
+              </span>
+              <span>Journey history</span>
           </router-link>
           
         </div>
