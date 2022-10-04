@@ -1,10 +1,12 @@
 import datetime
 import json
 from django.utils import timezone
-from vessels.serializers import LocationModelSerializer
+from vessels.pagination import ResultPagination
+from vessels.serializers import LocationGeoPointSerializer
 from rest_framework.test import APIClient
 from django.test import TestCase
 from vessels.models import Vessel, Location
+from django.core.paginator import Paginator
 from faker import Faker
 from django.contrib.gis.geos import Point
 from vessels.management.commands.import_vessels import DATE_FORMAT
@@ -43,14 +45,23 @@ class LocationApiTests(TestCase):
     def test_list_vessel_locations(self):
         response = self.client.get(f"/api/v1/vessels/{self.vessel.vessel_id}/locations/")
         self.assertEqual(response.status_code, 200)
+        
+        # the result is paginated 
         vessel_locations = Location.objects.filter(vessel__vessel_id=self.vessel.vessel_id).all()
-        serializer = LocationModelSerializer(vessel_locations, many=True)
-        self.assertEqual(serializer.data, response.data)
+        page_size = ResultPagination.page_size
+        paginator = Paginator(
+            vessel_locations,
+            page_size
+        )       
+        
+        serializer = LocationGeoPointSerializer(paginator.page(1), many=True)
+        self.assertEqual(response.data['count'], 3)
+        self.assertEqual(serializer.data, response.data['results'])
     
     def test_get_valid_vessel_location(self):
         response = self.client.get(f"/api/v1/vessels/{self.vessel.vessel_id}/locations/{self.location1.id}/")
         self.assertEqual(response.status_code, 200)
-        serializer = LocationModelSerializer(self.location1, many=False)
+        serializer = LocationGeoPointSerializer(self.location1, many=False)
         self.assertEqual(serializer.data, response.data)
     
     def test_get_invalid_vessel_location(self):

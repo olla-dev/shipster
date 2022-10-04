@@ -1,6 +1,6 @@
 from .pagination import ResultPagination
 from rest_framework.response import Response
-from .serializers import CsvModelSerializer, LocationModelSerializer, VesselGeoSerializer, VesselModelSerializer
+from .serializers import CsvModelSerializer, LocationGeoPointSerializer, VesselGeoSerializer, VesselModelSerializer
 from rest_framework import viewsets, generics, status
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
@@ -37,14 +37,14 @@ class VesselGeoView(generics.ListAPIView):
     # Optimization: 
     # I should use a cursor pagination if a vessel has a huge list of locations.
     # will try to do it, if I finish the UI :/
-    queryset = Vessel.objects.prefetch_related('locations').all()
+    queryset = Vessel.objects.all()
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class LocationView(viewsets.ModelViewSet):
     """
     Retrieve, update or delete a location instance.
     """
-    serializer_class = LocationModelSerializer
+    serializer_class = LocationGeoPointSerializer
     pagination_class = ResultPagination
 
     def get_queryset(self):
