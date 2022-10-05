@@ -7,8 +7,9 @@ export type CsvData = {
 }
 
 export type CsvRow = {
+    location_id: number,
     vessel_id: number,
     received_time_utc: string;
     latitude: number;
     longitude: number;
-};
+}
