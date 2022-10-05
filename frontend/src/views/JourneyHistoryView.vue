@@ -3,9 +3,9 @@
         <div class="card">
             <header class="card-header">
                 <p class="card-header-title title">
-                Journeys
+                    Journeys
                 </p>
-                
+
                 <p class="control has-icons-left">
                     <input class="input" type="text" placeholder="Search">
                     <span class="icon is-left">
@@ -15,38 +15,12 @@
             </header>
             <div class="card-content">
                 <div class="content">
-                    <JourneyTable />
+                    <JourneyTable :rows="data.results" />
                 </div>
             </div>
             <footer class="footer">
                 <div class="content has-text-centered">
-                    <nav class="pagination" role="navigation" aria-label="pagination">
-                    <a class="pagination-previous">Previous</a>
-                    <a class="pagination-next">Next page</a>
-                    <ul class="pagination-list">
-                        <li>
-                        <a class="pagination-link" aria-label="Goto page 1">1</a>
-                        </li>
-                        <li>
-                        <span class="pagination-ellipsis">&hellip;</span>
-                        </li>
-                        <li>
-                        <a class="pagination-link" aria-label="Goto page 45">45</a>
-                        </li>
-                        <li>
-                        <a class="pagination-link is-current" aria-label="Page 46" aria-current="page">46</a>
-                        </li>
-                        <li>
-                        <a class="pagination-link" aria-label="Goto page 47">47</a>
-                        </li>
-                        <li>
-                        <span class="pagination-ellipsis">&hellip;</span>
-                        </li>
-                        <li>
-                        <a class="pagination-link" aria-label="Goto page 86">86</a>
-                        </li>
-                    </ul>
-                    </nav>
+                    <PaginationPanel :links="data.links" />
                 </div>
             </footer>
         </div>
@@ -54,12 +28,41 @@
 </template>
 
 <script lang="ts">
-    import JourneyTable from '../components/journeys/JourneyTable.vue'
-    import { defineComponent } from 'vue';
-    export default defineComponent({
-        name: 'JourneyHistoryView',
-        components: {
-            JourneyTable
+import JourneyTable from '../components/journeys/JourneyTable.vue'
+import { defineComponent } from 'vue';
+import PaginationPanel from '@/components/journeys/PaginationPanel.vue';
+import { CsvData } from '@/utils/types';
+import csvModule from '@/store/csv';
+
+export default defineComponent({
+    name: 'JourneyHistoryView',
+    components: {
+        JourneyTable,
+        PaginationPanel
+    },
+    data() {
+        return {
+            isLoading: false
+        }
+    },
+    mounted() {
+        this.isLoading = true
+        csvModule.fetchCsv();
+    },
+    computed: {
+        data(): CsvData {
+            return csvModule.data
+        }
+    },
+    watch: {
+        rows: {
+            handler(oldVal, newVal) {
+                if (oldVal != newVal) {
+                    this.isLoading = false;
+                }
+            },
+            deep: true
         },
-    });
+    }
+});
 </script>

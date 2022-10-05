@@ -1,5 +1,5 @@
 import { httpClient } from './client'
-import { Vessel } from '../utils/types'
+import { CsvData, Vessel } from '../utils/types'
 
 class VesselApi {
     /**
@@ -12,6 +12,15 @@ class VesselApi {
 
     async getVessel(vessel_id: number): Promise<Vessel> {
         return await httpClient.get(`vessels/${vessel_id}/`);
+    }
+
+
+    /**
+     * Fetches all vessels in the same original csv format. 
+     * @returns 
+     */
+    async fetchCsv(): Promise<CsvData> {
+        return await httpClient.get('vessels/csv');
     }
 }
 

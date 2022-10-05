@@ -1,43 +1,40 @@
 <template>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Vessel</th>
-      <th>Received Time</th>
-      <th>Latitude</th>
-      <th>Longitude</th>
-    </tr>
-  </thead>
-  <tfoot>
-    <tr>
-      <th>Vessel</th>
-      <th>Received Time</th>
-      <th>Latitude</th>
-      <th>Longitude</th>
-    </tr>
-  </tfoot>
-  <tbody>
-    <tr>
-      <th>1</th>
-      <td><a href="https://en.wikipedia.org/wiki/Leicester_City_F.C." title="Leicester City F.C.">Leicester City</a> <strong>(C)</strong>
-      </td>
-      <td>38</td>
-      <td>23</td>
-    </tr>
-  </tbody>
-</table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Vessel</th>
+        <th>Received Time</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr>
+        <th>Vessel</th>
+        <th>Received Time</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+      </tr>
+    </tfoot>
+    <tbody v-if="rows">
+      <tr v-for="row in rows" v-bind:key="row.vessel_id">
+        <th>{{ row.vessel_id }}</th>
+        <td>{{ row.received_time_utc }}</td>
+        <td>{{ row.latitude }}</td>
+        <td>{{ row.longitude }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
+import { CsvRow } from '@/utils/types'
 export default defineComponent({
-    name: 'JourneyTable',
-    data() {
-        return {
-            
-        }
-    },
-    methods: {
-        
+  name: 'JourneyTable',
+  props: {
+    rows: {
+      type: Array as PropType<Array<CsvRow>>
     }
+  }
 })
 </script>

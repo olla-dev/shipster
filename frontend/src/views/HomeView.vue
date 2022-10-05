@@ -68,7 +68,6 @@ export default defineComponent({
       // important : attach click listener on marker
       el.addEventListener('click', () => {
         const id = `vessel_${this.selectedVessel?.vessel_id}`;
-        console.log(id);
 
         if (id !== `vessel_${location.properties!['vessel_id']}`) {
           // clear selected vessel display from map
