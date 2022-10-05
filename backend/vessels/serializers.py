@@ -55,12 +55,14 @@ class VesselJourneySerializer(serializers.ModelSerializer):
 class CsvModelSerializer(serializers.ModelSerializer):
     '''Serializes all locations as csv rows'''
     vessel_id = serializers.IntegerField(source='vessel.vessel_id')
+    location_id =  serializers.IntegerField(source='id')
     latitude =  serializers.SerializerMethodField()
     longitude =  serializers.SerializerMethodField()
     
     class Meta:
         model = Location
         fields = (
+            'location_id',
             'received_time_utc',
             'vessel_id',
             'latitude',
