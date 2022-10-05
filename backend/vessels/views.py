@@ -32,7 +32,8 @@ class VesselCsvView(generics.ListAPIView):
         filter = self.request.query_params.get('filter')
         if filter is not None:
             filtered_locations = Location.objects.filter(
-                Q(vessel__vessel_id__icontains = filter)
+                Q(vessel__vessel_id__icontains = filter)|
+                Q(received_time_utc__icontains = filter)
             )
             cached_rows = filtered_locations
             cache.set('csv_rows', cached_rows, CACHE_TTL)
