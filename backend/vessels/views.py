@@ -4,6 +4,8 @@ from .serializers import CsvModelSerializer, LocationGeoPointSerializer, VesselM
 from rest_framework import viewsets, generics, status
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from django.http import Http404
+from django.core.cache import cache
 
 from core.settings import CACHE_TTL
 from .models import Location, Vessel
@@ -19,14 +21,17 @@ class VesselView(viewsets.ReadOnlyModelViewSet):
     # will try to do it, if I finish the UI :/
     queryset = Vessel.objects.prefetch_related('locations').all()
 
-@method_decorator(cache_page(CACHE_TTL), name='get')
 class VesselCsvView(generics.ListAPIView):
     model = Location
     serializer_class = CsvModelSerializer
     pagination_class = ResultPagination
-    # select_related is very important here to reduce 
-    # the number of db queries!!!!
-    queryset = Location.objects.select_related('vessel').all()
+
+    def get_queryset(self):
+        cached_rows = cache.get('csv_rows')
+        if not cached_rows:
+            cached_rows = Location.objects.select_related('vessel').all()
+            cache.set('csv_rows', cached_rows, CACHE_TTL)
+        return cached_rows
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
 class LocationView(viewsets.ModelViewSet):
@@ -43,7 +48,7 @@ class LocationView(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         vessel_id = self.kwargs['vessel_vessel_id']
-        
+
         # automatically assign vessel to the new location 
         vessel = Vessel.objects.get(vessel_id=vessel_id)
         serializer = self.serializer_class(data=request.data)
@@ -53,3 +58,21 @@ class LocationView(viewsets.ModelViewSet):
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            location_id = self.kwargs['pk']
+
+            if Location.objects.filter(id=location_id).exists():
+                instance = Location.objects.get(id=location_id)
+                instance.delete()
+                # update cache
+                cached_rows = Location.objects.select_related('vessel').all()
+                cache.set('csv_rows', cached_rows, CACHE_TTL)
+            else: 
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except Http404:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        
+

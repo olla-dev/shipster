@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_gis',
+    'django_extensions',
     'vessels',
     'drf_api_logger',  #  API Call Logger
     'cachalot'
