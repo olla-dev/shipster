@@ -28,7 +28,6 @@ For the sake of simplicity a location belongs to a vessel
 * POST /api/v1/vessels/{vessel_vessel_id}/locations/: adds a location to the vessel
 * PUT  /api/v1/vessels/{vessel_vessel_id}/locations/{location_id}: update location properties
 * DELETE /api/v1/vessels/{vessel_vessel_id}/locations/{location_id}: deletes location
-* GET /api/v1/vessels/geo/: returns a GeoJson for the latest vessel locations
 * GET /api/v1/vessels/csv/: returns a flat paginated list similar to the csv in the specs
 
 #### Performance
@@ -38,6 +37,14 @@ Many techniques can optimize Performance like:
 * Reduce DB queries by optimizing querysets
 * Caching: I used django-redis and cached CBVs. It is possible to cache Model objects (relying on django's built in queryset caching)
 
+#### UI
+
+I tried to build everything by hand (mapbox and datatables). 
+* the map displays all vessels by their latest known position. When clicking a map marker, the journey is displayed (not directional :( just a LineString)
+* the datatable lists all locations (paginated). Edit and Delete buttons are contextual to each position. The add button launches a modal.
+/!\ I didn't have enough time to make data entry validation better. Sorry :/ Haven't slept alot this week working on the assignment. 
+
+The libraries used are listed on the about page of the app.
 
 ## Code and repo
 In this repo, you will find different work branches (VSS-XX---some-feature). All of them are merged on the main branch along the way (using github PR, for simplicity I kept main as the develop branch).
