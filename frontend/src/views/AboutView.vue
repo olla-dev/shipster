@@ -2,13 +2,13 @@
   <div class="about">
     <div class="hero is-primary">
       <div class="hero-body">
-        <div class="container">
+        <div class="container has-text-centered">
           <h1 class="title is-size-1">About Shipster</h1>
         </div>
       </div>
     </div>
-    <div class="columns is-centered">
-      <div class="column is-one-fifth">
+    <div class="columns is-centered mt-5">
+      <div class="column is-one-fifth  has-text-centered">
         <img src="@/assets/logo.png" alt="" class="img-fluid profile-img mt-5 mb-2" />
         <div class="columns is-centered">
             <div class="column is-half">
@@ -32,10 +32,10 @@
         <span class="tag is-light">{{ year }} © Hamza Abdelkebir</span>
       </div>
       <div class="column is-one-third ml-5">
-        <div class="card">
+        <div class="has-text-centered">
             <div class="card-content">
               <div class="content">
-                <p class="org-description is-size-4">
+                <p class="is-size-4">
                   Shipster is a platform where you can track vessel journeys. 
                 </p>
                 <p class="is-size-4">

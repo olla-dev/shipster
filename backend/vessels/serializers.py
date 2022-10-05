@@ -1,102 +1,74 @@
-from vessels.pagination import ResultPagination
+import json
 from rest_framework import serializers
-from django.core.paginator import Paginator
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from .serializers import *
 from .models import Location, Vessel
 
-# Features:
-# 1. Get all vessel locations
-# 2. Get location history for a specific vessel
-
-class LocationGeoPointSerializer(serializers.ModelSerializer):
+class LocationGeoPointSerializer(GeoFeatureModelSerializer):
     '''Represents a GeoJson Point Location'''
-    location = serializers.SerializerMethodField()
+    vessel_id = serializers.IntegerField(source='vessel.vessel_id', required=False)
 
     class Meta:
         model = Location
+        geo_field='point'
         fields = (
             'id',
+            'vessel_id',
             'received_time_utc',
-            'point'
-        )
-
-    def to_representation(self, instance):
-        coordinates = [
-            instance.point.coords[0],
-            instance.point.coords[1]
-        ]
-        
-        representation = {
-            'type': 'Point',
-            'coordinates': coordinates
-        } 
-        return representation
-
-class VesselGeoSerializer(GeoFeatureModelSerializer):
-    '''Represents a vessel as a GeoJson Feature'''
-    location = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Vessel
-        geo_field = 'location'
-        id_field = 'vessel_id'
-        fields = ('vessel_id',)
-    
-    def get_properties(self, instance, fields):
-        location = Location.objects.filter(vessel__vessel_id=instance.vessel_id).latest('received_time_utc')
-        return {
-            'vessel_id': instance.vessel_id, 
-            'received_time_utc': location.received_time_utc,
-            'latitude': location.point.coords[0],
-            'longitude': location.point.coords[1] 
-        }
-    
-    def get_location(self, obj):
-        location = Location.objects.filter(vessel__vessel_id=obj.vessel_id).latest('received_time_utc')
-        return LocationGeoPointSerializer(location, many=False).data
-
-
-class LocationModelSerializer(serializers.ModelSerializer):
-    '''Simple Location Model Serializer'''
-    class Meta:
-        model = Location
-        fields = (
-            'id',
-            'received_time_utc',
-            'point',
         )
 
 class VesselModelSerializer(serializers.ModelSerializer):
-    '''Serializes a Vessel and its recorded locations'''
-    locations = serializers.SerializerMethodField()
+    '''Represents a vessel as a GeoJson Feature'''
+    latest_location = serializers.SerializerMethodField()
+    journey = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Vessel
+        fields = ('vessel_id', 'latest_location', 'journey')
+    
+    def get_latest_location(self, obj):
+        return LocationGeoPointSerializer(obj.latest_location, many=False).data
+    
+    def get_journey(self, obj):
+        return {
+            'type': 'Feature',
+            'properties': {},
+            'geometry': json.loads(obj.journey.geojson)
+        }
+
+class VesselJourneySerializer(serializers.ModelSerializer):
+    '''Serializes a Vessel's journey as a LineString'''
+    journey = serializers.SerializerMethodField()
 
     class Meta:
         model = Vessel
         lookup_field = 'vessel_id'
-        fields = ('vessel_id', 'locations',)
+        fields = ('vessel_id', 'journey')
     
-    def get_locations(self, obj):
-        page_size = ResultPagination.page_size
-        paginator = Paginator(
-            Location.objects.filter(vessel__vessel_id=obj.vessel_id),
-            page_size
-        )
-        locations = paginator.page(1)
-        return LocationModelSerializer(locations, many=True).data
+    def get_journey(self, obj):
+        return {
+            'type': 'Feature',
+            'properties': {},
+            'geometry': json.loads(obj.journey.geojson)
+        }
 
 class CsvModelSerializer(serializers.ModelSerializer):
     '''Serializes all locations as csv rows'''
     vessel_id = serializers.IntegerField(source='vessel.vessel_id')
-
+    latitude =  serializers.SerializerMethodField()
+    longitude =  serializers.SerializerMethodField()
+    
     class Meta:
         model = Location
-        
-    def to_representation(self, instance):        
-        representation = {
-            'received_time_utc': instance.received_time_utc,
-            'vessel_id': instance.vessel_id,
-            'latitude': instance.point.coords[1],
-            'longitude': instance.point.coords[0]
-        } 
-        return representation
+        fields = (
+            'received_time_utc',
+            'vessel_id',
+            'latitude',
+            'longitude'
+        )
+    
+    def get_latitude(self, obj):
+        return obj.point.coords[0]
+    
+    def get_longitude(self, obj):
+        return obj.point.coords[1]
