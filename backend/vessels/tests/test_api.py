@@ -47,7 +47,7 @@ class LocationApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         
         # the result is paginated 
-        vessel_locations = Location.objects.filter(vessel__vessel_id=self.vessel.vessel_id).all()
+        vessel_locations = Location.objects.filter(vessel__vessel_id=self.vessel.vessel_id)
         page_size = ResultPagination.page_size
         paginator = Paginator(
             vessel_locations,
@@ -56,6 +56,8 @@ class LocationApiTests(TestCase):
         
         serializer = LocationGeoPointSerializer(paginator.page(1), many=True)
         self.assertFalse('count' in response.data)
+        self.assertTrue('links' in response.data)
+
         self.assertEqual(serializer.data, response.data['results'])
     
     def test_get_valid_vessel_location(self):
@@ -184,15 +186,15 @@ class LocationApiTests(TestCase):
             f"/api/v1/vessels/{self.vessel.vessel_id}/locations/99999999/"
         )
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.data['detail'].code, 'not_found')
+        self.assertIsNone(response.data)
 
     def test_csv_locations(self):
         response = self.client.get(
             f"/api/v1/vessels/csv"
         )
         self.assertEqual(response.status_code, 200)
-        print()
         row = response.data['results'][0]
         vessel_id = row['vessel_id']
+        print(vessel_id)
         vessel_exists = Vessel.objects.filter(vessel_id=vessel_id).exists()
         self.assertTrue(vessel_exists)

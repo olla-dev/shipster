@@ -17,3 +17,6 @@ django-cachalot
 
 # A nice helper to get nested routers 
 drf-nested-routers
+
+# Django helpers
+django-extensions
