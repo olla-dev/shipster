@@ -14,7 +14,7 @@
                 </p>
 
                 <p class="control has-icons-left mt-5 mr-5">
-                    <input class="input" type="text" placeholder="Search">
+                    <input class="input" type="text" @change="applyFilter" :model="searchFilter" placeholder="Search">
                     <span class="icon is-left">
                         <i class="fas fa-search" aria-hidden="true"></i>
                     </span>
@@ -23,7 +23,8 @@
             </header>
             <div class="card-content">
                 <div class="content">
-                    <JourneyTable :rows="data.results" @deleteRow="showDeleteRow" @editRow="showEditRow" />
+                    <JourneyTable :rows="filteredRows.length > 0 ? filteredRows : data.results"
+                        @deleteRow="showDeleteRow" @editRow="showEditRow" />
                 </div>
             </div>
             <footer class="footer">
@@ -36,6 +37,8 @@
 
         <DeleteRowModal v-show="deleteModalVisible" :class="{'is-active': deleteModalVisible}" :row="selectedRow"
             @close="closeModal" @deleteRow="deleteRow" />
+        <AddEditRowModal v-show="addEditModalVisible" :row="selectedRow" :mode="mode"
+            :class="{'is-active': addEditModalVisible}" @close="closeModal" @saveRow="saveRow" />
     </div>
 </template>
 
@@ -46,6 +49,7 @@ import PaginationPanel from '@/components/journeys/PaginationPanel.vue';
 import { CsvData, CsvRow } from '@/utils/types';
 import csvModule from '@/store/csv';
 import DeleteRowModal from '../components/journeys/DeleteRowModal.vue';
+import AddEditRowModal from '../components/journeys/AddEditRowModal.vue';
 import Loading from '@/components/Loading.vue';
 
 export default defineComponent({
@@ -54,6 +58,7 @@ export default defineComponent({
         JourneyTable,
         PaginationPanel,
         DeleteRowModal,
+        AddEditRowModal,
         Loading
     },
     data() {
@@ -62,7 +67,8 @@ export default defineComponent({
             mode: 'edit', // edit or create mode
             deleteModalVisible: false,
             addEditModalVisible: false,
-            selectedRow: {} as CsvRow
+            selectedRow: {} as CsvRow,
+            searchFilter: ''
         }
     },
     mounted() {
@@ -73,6 +79,9 @@ export default defineComponent({
         data(): CsvData {
             return csvModule.data
         },
+        filteredRows(): CsvRow[] {
+            return csvModule.filteredRows
+        },
         currentPage(): number {
             return csvModule.currentPage
         }
@@ -81,21 +90,39 @@ export default defineComponent({
         addRow() {
             this.mode = 'create'
             this.addEditModalVisible = true
-            alert('add')
+            this.selectedRow = {} as CsvRow;
+            csvModule.setSelectedRow(this.selectedRow);
         },
         showEditRow(row: CsvRow) {
             this.mode = 'edit'
             this.addEditModalVisible = true
-            alert('edit')
+            this.selectedRow = row;
+            csvModule.setSelectedRow(this.selectedRow);
         },
         showDeleteRow(row: CsvRow) {
             this.selectedRow = row
             this.deleteModalVisible = true
+            csvModule.setSelectedRow(this.selectedRow);
         },
         deleteRow() {
             this.isLoading = true;
             console.log(`delete location: ${this.selectedRow.location_id}`)
             csvModule.deleteLocation(this.selectedRow);
+            this.closeModal();
+            csvModule.fetchCsv(this.currentPage);
+            this.selectedRow = {} as CsvRow;
+            csvModule.setSelectedRow(this.selectedRow);
+        },
+        saveRow(row: any) {
+            this.isLoading = true;
+            const update = this.mode === 'edit';
+
+            console.log(`${this.mode} location: ${row.point.coordinates}`)
+            if (update === true) {
+                csvModule.updateLocation(row);
+            } else {
+                csvModule.saveLocation(row);
+            }
             this.closeModal();
             csvModule.fetchCsv(this.currentPage);
             this.selectedRow = {} as CsvRow;
@@ -111,6 +138,13 @@ export default defineComponent({
         fetchPreviousPage() {
             this.isLoading = true;
             csvModule.fetchCsv(this.currentPage - 1)
+        },
+        applyFilter() {
+            alert(this.searchFilter);
+            if (this.searchFilter !== '') {
+                this.isLoading = true;
+                csvModule.filteredLocations(this.searchFilter)
+            }
         }
     },
     watch: {

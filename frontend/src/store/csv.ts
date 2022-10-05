@@ -4,9 +4,10 @@ import {
   MutationAction,
   getModule,
   Action,
+  Mutation,
 } from 'vuex-module-decorators'
 import { notify } from "@kyvg/vue3-notification";
-import { CsvData, CsvRow } from '@/utils/types/index'
+import { CsvData, CsvRow, CsvRowGeo } from '@/utils/types/index'
 import { vesselApi } from '@/api/api.service'
 import store from './index'
 
@@ -20,6 +21,8 @@ class CsvModule extends VuexModule {
     results: new Array<CsvRow>()
   };
   currentPage = 1;
+  selectedRow: CsvRow = {} as CsvRow;
+  filteredRows: CsvRow[] = [];
 
   /**
    * Returns a specific Vessel by its vessel_id
@@ -37,6 +40,28 @@ class CsvModule extends VuexModule {
    */
   get vesselList() {
     return [...new Set(this.data.results.map(item => item.vessel_id))];
+  }
+
+  /**
+   * Returns filtered data
+   * @param row 
+   */
+  get filteredLocations() {
+    return (filter: string) => {
+      this.data.results.filter(
+        row => {
+          return row.vessel_id.toString().includes(filter)
+            || row.received_time_utc.toString().includes(filter)
+            || row.latitude.toString().includes(filter)
+            || row.longitude.toString().includes(filter)
+        }
+      )
+    };
+  }
+
+  @Mutation
+  setSelectedRow(row: CsvRow) {
+    this.selectedRow = row;
   }
 
   @Action({ rawError: true })
@@ -61,6 +86,16 @@ class CsvModule extends VuexModule {
       data: data,
       currentPage: page
     }
+  }
+
+  @Action({ rawError: true })
+  async updateLocation(row: CsvRowGeo) {
+    await vesselApi.updateLocation(row);
+  }
+
+  @Action({ rawError: true })
+  async saveLocation(row: CsvRowGeo) {
+    await vesselApi.saveLocation(row);
   }
 }
 

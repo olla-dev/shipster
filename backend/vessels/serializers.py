@@ -6,7 +6,7 @@ from .models import Location, Vessel
 
 class LocationGeoPointSerializer(GeoFeatureModelSerializer):
     '''Represents a GeoJson Point Location'''
-    vessel_id = serializers.IntegerField(source='vessel.vessel_id', required=False)
+    vessel_id = serializers.IntegerField(source='vessel.vessel_id', required=False, read_only=True)
 
     class Meta:
         model = Location

@@ -13,3 +13,13 @@ export type CsvRow = {
     latitude: number;
     longitude: number;
 }
+
+export type CsvRowGeo = {
+    location_id: number,
+    vessel_id: number,
+    received_time_utc: string,
+    point: {
+        "type": "Point",
+        "coordinates": [number, number]
+    }
+}
