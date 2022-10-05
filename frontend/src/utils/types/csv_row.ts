@@ -23,3 +23,8 @@ export type CsvRowGeo = {
         "coordinates": [number, number]
     }
 }
+
+export type QueryFilter = {
+    page: number,
+    filter: string
+}

@@ -7,7 +7,7 @@ import {
   Mutation,
 } from 'vuex-module-decorators'
 import { notify } from "@kyvg/vue3-notification";
-import { CsvData, CsvRow, CsvRowGeo } from '@/utils/types/index'
+import { CsvData, CsvRow, CsvRowGeo, QueryFilter } from '@/utils/types/index'
 import { vesselApi } from '@/api/api.service'
 import store from './index'
 
@@ -22,7 +22,6 @@ class CsvModule extends VuexModule {
   };
   currentPage = 1;
   selectedRow: CsvRow = {} as CsvRow;
-  filteredRows: CsvRow[] = [];
 
   /**
    * Returns a specific Vessel by its vessel_id
@@ -42,23 +41,6 @@ class CsvModule extends VuexModule {
     return [...new Set(this.data.results.map(item => item.vessel_id))];
   }
 
-  /**
-   * Returns filtered data
-   * @param row 
-   */
-  get filteredLocations() {
-    return (filter: string) => {
-      this.data.results.filter(
-        row => {
-          return row.vessel_id.toString().includes(filter)
-            || row.received_time_utc.toString().includes(filter)
-            || row.latitude.toString().includes(filter)
-            || row.longitude.toString().includes(filter)
-        }
-      )
-    };
-  }
-
   @Mutation
   setSelectedRow(row: CsvRow) {
     this.selectedRow = row;
@@ -75,16 +57,16 @@ class CsvModule extends VuexModule {
       });
     }
 
-    this.fetchCsv(this.currentPage);
+    this.fetchCsv({ page: this.currentPage, filter: '' });
   }
 
   @MutationAction({ mutate: ['data', 'currentPage'] })
-  async fetchCsv(page = 1) {
-    const data = await vesselApi.fetchCsv(page);
+  async fetchCsv(p: QueryFilter) {
+    const data = await vesselApi.fetchCsv(p.page, p.filter);
 
     return {
       data: data,
-      currentPage: page
+      currentPage: p.page
     }
   }
 

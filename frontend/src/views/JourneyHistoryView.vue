@@ -14,17 +14,15 @@
                 </p>
 
                 <p class="control has-icons-left mt-5 mr-5">
-                    <input class="input" type="text" @change="applyFilter" :model="searchFilter" placeholder="Search">
+                    <input class="input" type="text" @input="applyFilter" v-model="searchFilter" placeholder="Search">
                     <span class="icon is-left">
                         <i class="fas fa-search" aria-hidden="true"></i>
                     </span>
                 </p>
-
             </header>
             <div class="card-content">
                 <div class="content">
-                    <JourneyTable :rows="filteredRows.length > 0 ? filteredRows : data.results"
-                        @deleteRow="showDeleteRow" @editRow="showEditRow" />
+                    <JourneyTable :rows="data.results" @deleteRow="showDeleteRow" @editRow="showEditRow" />
                 </div>
             </div>
             <footer class="footer">
@@ -73,14 +71,11 @@ export default defineComponent({
     },
     mounted() {
         this.isLoading = true
-        csvModule.fetchCsv();
+        csvModule.fetchCsv({ page: 1, filter: '' });
     },
     computed: {
         data(): CsvData {
             return csvModule.data
-        },
-        filteredRows(): CsvRow[] {
-            return csvModule.filteredRows
         },
         currentPage(): number {
             return csvModule.currentPage
@@ -109,7 +104,7 @@ export default defineComponent({
             console.log(`delete location: ${this.selectedRow.location_id}`)
             csvModule.deleteLocation(this.selectedRow);
             this.closeModal();
-            csvModule.fetchCsv(this.currentPage);
+            csvModule.fetchCsv({ page: this.currentPage, filter: '' });
             this.selectedRow = {} as CsvRow;
             csvModule.setSelectedRow(this.selectedRow);
         },
@@ -124,7 +119,7 @@ export default defineComponent({
                 csvModule.saveLocation(row);
             }
             this.closeModal();
-            csvModule.fetchCsv(this.currentPage);
+            csvModule.fetchCsv({ page: this.currentPage, filter: '' });
             this.selectedRow = {} as CsvRow;
         },
         closeModal() {
@@ -133,17 +128,20 @@ export default defineComponent({
         },
         fetchNextPage() {
             this.isLoading = true;
-            csvModule.fetchCsv(this.currentPage + 1)
+            csvModule.fetchCsv({ page: this.currentPage + 1, filter: '' })
         },
         fetchPreviousPage() {
             this.isLoading = true;
-            csvModule.fetchCsv(this.currentPage - 1)
+            csvModule.fetchCsv({ page: this.currentPage - 1, filter: '' })
         },
         applyFilter() {
-            alert(this.searchFilter);
-            if (this.searchFilter !== '') {
+            if (this.searchFilter.length > 2) {
                 this.isLoading = true;
-                csvModule.filteredLocations(this.searchFilter)
+                csvModule.fetchCsv({ page: 1, filter: this.searchFilter });
+            }
+            if (this.searchFilter === '') {
+                csvModule.fetchCsv({ page: 1, filter: '' });
+
             }
         }
     },

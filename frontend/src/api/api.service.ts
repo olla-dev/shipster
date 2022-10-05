@@ -48,8 +48,8 @@ class VesselApi {
      * Fetches all vessels in the same original csv format. 
      * @returns 
      */
-    async fetchCsv(page = 1): Promise<CsvData> {
-        return await httpClient.get(`vessels/csv?page=${page}`);
+    async fetchCsv(page = 1, filter = ''): Promise<CsvData> {
+        return await httpClient.get(`vessels/csv?page=${page}&filter=${filter}`);
     }
 }
 
