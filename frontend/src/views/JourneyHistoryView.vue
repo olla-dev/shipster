@@ -14,7 +14,8 @@
                 </p>
 
                 <p class="control has-icons-left mt-5 mr-5">
-                    <input class="input" type="text" @input="applyFilter" v-model="searchFilter" placeholder="Search">
+                    <input class="input" type="text" v-on:keyup.enter="applyFilter" v-model="searchFilter"
+                        placeholder="Search">
                     <span class="icon is-left">
                         <i class="fas fa-search" aria-hidden="true"></i>
                     </span>

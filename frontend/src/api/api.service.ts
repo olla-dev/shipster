@@ -49,7 +49,11 @@ class VesselApi {
      * @returns 
      */
     async fetchCsv(page = 1, filter = ''): Promise<CsvData> {
-        return await httpClient.get(`vessels/csv?page=${page}&filter=${filter}`);
+        if (filter !== '') {
+            return await httpClient.get(`vessels/csv?filter=${filter}`);
+        } else {
+            return await httpClient.get(`vessels/csv?page=${page}&filter=${filter}`);
+        }
     }
 }
 
