@@ -6,6 +6,7 @@ from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from django.http import Http404
 from django.core.cache import cache
+from django.db.models import Q
 
 from core.settings import CACHE_TTL
 from .models import Location, Vessel
@@ -27,10 +28,21 @@ class VesselCsvView(generics.ListAPIView):
     pagination_class = ResultPagination
 
     def get_queryset(self):
-        cached_rows = cache.get('csv_rows')
-        if not cached_rows:
-            cached_rows = Location.objects.select_related('vessel').all()
+        # check for query filter
+        filter = self.request.query_params.get('filter')
+        if filter is not None:
+            filtered_locations = Location.objects.filter(
+                Q(vessel__vessel_id__icontains = filter)
+            )
+            cached_rows = filtered_locations
             cache.set('csv_rows', cached_rows, CACHE_TTL)
+            return cached_rows
+        else:
+            cached_rows = cache.get('csv_rows')
+            if not cached_rows:
+                cached_rows = Location.objects.select_related('vessel').all()
+                cache.set('csv_rows', cached_rows, CACHE_TTL)
+        
         return cached_rows
 
 @method_decorator(cache_page(CACHE_TTL), name='dispatch')
