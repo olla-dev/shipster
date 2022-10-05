@@ -33,6 +33,9 @@ export default defineComponent({
     // need annotation
     vessels(): Vessel[] {
       return vesselModule.vessels
+    },
+    selectedVessel(): Vessel | undefined {
+      return vesselModule.getSelectedVessel
     }
   },
   methods: {
@@ -59,7 +62,26 @@ export default defineComponent({
     addMarker(location: Feature<Point>) {
       // create a HTML element for the marker
       const el = document.createElement("div");
+      el.id = location.properties!['vessel_id'];
       el.className = "marker";
+
+      // important : attach click listener on marker
+      el.addEventListener('click', () => {
+        const id = `vessel_${this.selectedVessel?.vessel_id}`;
+        console.log(id);
+
+        if (id !== `vessel_${location.properties!['vessel_id']}`) {
+          // clear selected vessel display from map
+          if (this.map.getLayer(id)) {
+            this.map.removeLayer(id);
+          }
+          if (this.map.getSource(id)) {
+            this.map.removeSource(id);
+          }
+        }
+
+        vesselModule.setSelectedVessel(location.properties!['vessel_id']);
+      });
 
       // add a popup to the marker
       const popup = new Popup({ offset: 25 })
@@ -75,14 +97,44 @@ export default defineComponent({
         .setPopup(popup)
         .addTo(this.map);
     },
-  },
+    loadJourney() {
+      console.log('selected vessel:', this.selectedVessel?.vessel_id);
 
+      const id = `vessel_${this.selectedVessel?.vessel_id}`;
+      // display vessel journey on the map
+      this.map.addLayer({
+        'id': id,
+        'type': 'line',
+        'source': {
+          'type': 'geojson',
+          'data': this.selectedVessel?.journey
+        },
+        'layout': {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        'paint': {
+          'line-color': '#ff0000',
+          'line-width': 3
+        }
+      });
+    }
+  },
   watch: {
     vessels: {
       handler(oldVal, newVal) {
         if (oldVal != newVal) {
           this.isLoading = false;
           this.fillMap();
+        }
+      },
+      deep: true
+    },
+    selectedVessel: {
+      handler(oldVal, newVal) {
+        if (oldVal != newVal) {
+          this.isLoading = false;
+          this.loadJourney();
         }
       },
       deep: true
@@ -107,6 +159,6 @@ export default defineComponent({
 }
 
 .mapboxgl-popup {
-  max-width: 200px;
+  max-width: 300px;
 }
 </style>
