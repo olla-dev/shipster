@@ -7,7 +7,7 @@ class VesselApi {
      * @returns 
      */
     async fetchVessels(): Promise<Vessel[]> {
-        return await httpClient.get('vessels/geo');
+        return await httpClient.get('vessels/');
     }
 
     async getVessel(vessel_id: number): Promise<Vessel> {

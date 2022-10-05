@@ -1,7 +1,3 @@
-import { Point } from 'geojson'
+import { Point, Feature } from 'geojson'
 
-export interface Location {
-    id: number,
-    received_time_utc: String,
-    point: Point
-};
+export type Location = Feature<Point>
