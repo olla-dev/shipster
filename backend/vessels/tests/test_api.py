@@ -55,7 +55,7 @@ class LocationApiTests(TestCase):
         )       
         
         serializer = LocationGeoPointSerializer(paginator.page(1), many=True)
-        self.assertEqual(response.data['count'], 3)
+        self.assertFalse('count' in response.data)
         self.assertEqual(serializer.data, response.data['results'])
     
     def test_get_valid_vessel_location(self):
@@ -185,3 +185,14 @@ class LocationApiTests(TestCase):
         )
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.data['detail'].code, 'not_found')
+
+    def test_csv_locations(self):
+        response = self.client.get(
+            f"/api/v1/vessels/csv"
+        )
+        self.assertEqual(response.status_code, 200)
+        print()
+        row = response.data['results'][0]
+        vessel_id = row['vessel_id']
+        vessel_exists = Vessel.objects.filter(vessel_id=vessel_id).exists()
+        self.assertTrue(vessel_exists)

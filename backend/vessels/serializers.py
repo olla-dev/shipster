@@ -6,6 +6,8 @@ from .models import Location, Vessel
 
 class LocationGeoPointSerializer(GeoFeatureModelSerializer):
     '''Represents a GeoJson Point Location'''
+    vessel_id = serializers.IntegerField(source='vessel.vessel_id', required=False)
+
     class Meta:
         model = Location
         geo_field='point'
@@ -53,15 +55,20 @@ class VesselJourneySerializer(serializers.ModelSerializer):
 class CsvModelSerializer(serializers.ModelSerializer):
     '''Serializes all locations as csv rows'''
     vessel_id = serializers.IntegerField(source='vessel.vessel_id')
-
+    latitude =  serializers.SerializerMethodField()
+    longitude =  serializers.SerializerMethodField()
+    
     class Meta:
         model = Location
-        
-    def to_representation(self, instance):        
-        representation = {
-            'received_time_utc': instance.received_time_utc,
-            'vessel_id': instance.vessel_id,
-            'latitude': instance.point.coords[1],
-            'longitude': instance.point.coords[0]
-        } 
-        return representation
+        fields = (
+            'received_time_utc',
+            'vessel_id',
+            'latitude',
+            'longitude'
+        )
+    
+    def get_latitude(self, obj):
+        return obj.point.coords[0]
+    
+    def get_longitude(self, obj):
+        return obj.point.coords[1]
