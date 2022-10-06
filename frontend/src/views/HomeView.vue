@@ -8,8 +8,9 @@
 import { defineComponent } from 'vue';
 import vesselModule from '@/store/vessels';
 import { Vessel } from '@/utils/types';
-import mapboxgl, { FullscreenControl, Map, Marker, Popup } from 'mapbox-gl';
+import mapboxgl, { AnyLayer, FullscreenControl, Layer, Map, Marker, Popup } from 'mapbox-gl';
 import { Feature, Point } from 'geojson';
+import { numberLiteralTypeAnnotation } from '@babel/types';
 
 
 export default defineComponent({
@@ -21,13 +22,33 @@ export default defineComponent({
       center: [11.03, 37.915],
       zoom: 3,
       map: {} as Map,
-      isLoading: false
+      isLoading: false,
+      markers: [{}] as [{ id: number, marker: mapboxgl.Marker }],
+      websocketConnection: new WebSocket(process.env.VUE_APP_WEBSOCKET_URL)
     }
   },
   mounted() {
     this.isLoading = true
     vesselModule.fetchVessels();
     this.createMap();
+  },
+  created: function () {
+    const markers = this.markers;
+    const map = this.map;
+    console.log("Starting connection to WebSocket Server")
+    this.websocketConnection.onmessage = function (event: MessageEvent) {
+      console.log('Update vessel location.');
+      const eventJson = JSON.parse(event.data);
+      const marker = markers.find(m => m.id === eventJson.properties.vessel_id)
+      if (marker !== undefined) {
+        marker.marker.setLngLat(eventJson.geometry.coordinates)
+      }
+    }
+
+    this.websocketConnection.onopen = function (event: Event) {
+      console.log(event)
+      console.log("Successfully connected to the vessel websocket server...")
+    }
   },
   computed: {
     // need annotation
@@ -67,9 +88,9 @@ export default defineComponent({
 
       // important : attach click listener on marker
       el.addEventListener('click', () => {
-        const id = `vessel_${this.selectedVessel?.vessel_id}`;
+        const id = `${this.selectedVessel?.vessel_id}`;
 
-        if (id !== `vessel_${location.properties!['vessel_id']}`) {
+        if (id !== `${location.properties!['vessel_id']}`) {
           // clear selected vessel display from map
           if (this.map.getLayer(id)) {
             this.map.removeLayer(id);
@@ -95,11 +116,12 @@ export default defineComponent({
         ])
         .setPopup(popup)
         .addTo(this.map);
+      this.markers.push({ id: location.properties!['vessel_id'], marker: m });
     },
     loadJourney() {
       console.log('selected vessel:', this.selectedVessel?.vessel_id);
 
-      const id = `vessel_${this.selectedVessel?.vessel_id}`;
+      const id = `${this.selectedVessel?.vessel_id}`;
       // display vessel journey on the map
       this.map.addLayer({
         'id': id,
