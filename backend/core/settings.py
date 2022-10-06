@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'vessels',
     'drf_api_logger',  #  API Call Logger
-    'cachalot'
+    'cachalot',
+    'channels'
 ]
 
 CORS_ORIGIN_WHITELIST = [
@@ -165,3 +166,14 @@ GEOS_LIBRARY_PATH=glob('/usr/lib/libgeos_c.so.*')[0]
 
 # API Call Logger
 DRF_API_LOGGER_DATABASE = True
+
+# WebSockets config
+ASGI_APPLICATION = "core.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(f"redis://:{os.environ.get('REDIS_PASSWORD')}@{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/2")],
+        },
+    },
+}
