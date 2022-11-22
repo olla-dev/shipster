@@ -1,0 +1,17 @@
+# develop stage
+FROM node:14-alpine as develop-stage
+WORKDIR /frontend
+COPY ./frontend /frontend
+RUN yarn install --production
+COPY . .
+
+# Expose port
+EXPOSE 80
+
+# build stage
+FROM develop-stage as build-stage
+RUN yarn build
+
+# production stage
+FROM nginx as production-stage
+COPY --from=build-stage /frontend/dist /usr/share/nginx/html

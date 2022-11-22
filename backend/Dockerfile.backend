@@ -1,0 +1,38 @@
+FROM python:3.9-alpine
+
+ENV PYTHONUNBUFFERED 1
+WORKDIR /app
+COPY ./backend .
+
+RUN pip install --upgrade pip
+
+COPY ./backend/requirements.txt .
+COPY ./backend/requirements.dev.txt .
+
+RUN apk add --update --no-cache curl build-base
+RUN apk add --update --no-cache postgresql-client
+RUN apk add --update --no-cache --virtual .tmp-build-deps \
+     gcc libc-dev linux-headers postgresql-dev
+
+RUN apk add --no-cache geos gdal binutils \
+    && apk add jpeg-dev \
+    && apk add tk \
+    && apk add libjpeg \
+    && apk add zlib-dev \
+    && ln -s /usr/lib/libproj.so.15 /usr/lib/libproj.so \
+    && ln -s /usr/lib/libgdal.so.20 /usr/lib/libgdal.so \
+    && ln -s /usr/lib/libgeos_c.so.1 /usr/lib/libgeos_c.so
+RUN apk del .tmp-build-deps
+
+ARG DEV=false
+RUN pip install --upgrade pip
+RUN pip install -r ./requirements.txt
+RUN if [ $DEV = "true" ] ; \
+       then pip install -r ./requirements.dev.txt ; \
+    fi;
+
+# run migrations and create default super user
+COPY ./.env ./.env
+
+RUN adduser -D panda
+USER panda

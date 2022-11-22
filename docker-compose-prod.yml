@@ -1,0 +1,158 @@
+version: '3'
+
+services:
+  shipster-app:
+    container_name: shipster-app
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile.backend
+      args:
+        - DEV=true
+    env_file: .env
+    ports:
+      - ${DJANGO_DOCKER_PORT}:8080
+      - 8008:8008
+    volumes:
+      - ./backend:/app
+      - ./specs:/specs
+    command: >
+      sh -c "python3 /app/manage.py migrate --noinput &&\
+       gunicorn core.wsgi -b 0.0.0.0:8080 &\
+       daphne -b 0.0.0.0 -p 8008 core.asgi:application"
+    depends_on:
+      shipster-cache:
+        condition: service_healthy
+      shipster-db:
+        condition: service_healthy
+    networks:
+      - web
+
+  shipster-frontend:
+    restart: always
+    env_file: .env
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile.ui
+    container_name: shipster-frontend
+    depends_on:
+      - shipster-app
+      - shipster-db
+    volumes:
+      - ./frontend:/frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_network"
+      - "traefik.http.routers.aceite-frontend.entrypoints=web,websecure"
+      - "traefik.http.routers.aceite-frontend.rule=Host(`${FRONTEND_DOMAIN}`)"
+      - "traefik.http.services.aceite-frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.aceite-frontend.tls=true"
+      - "traefik.http.routers.aceite-frontend.tls.certresolver=leresolver"
+    networks:
+      - web
+      - traefik
+    ports:
+      - 3000:3000
+
+  shipster-db:
+    container_name: shipster-db
+    image: "postgis/postgis:${POSTGRES_VERSION}"
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    ports:
+      - "${POSTGRES_DOCKER_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgres/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - web
+
+  shipster-cache:
+    image: redis:latest
+    restart: always
+    container_name: shipster-cache
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    volumes:
+      - cache:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - web
+
+  shipster-traefik:
+    image: traefik:v2.2
+    container_name: shipster-traefik
+    command:
+      - --providers.docker=true
+      - --log.level=DEBUG
+      - --api=true
+      - --api.dashboard=true
+      - --providers.docker.exposedbydefault=false
+      - --certificatesresolvers.leresolver.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesresolvers.leresolver.acme.storage=/acme.json
+      - --certificatesresolvers.leresolver.acme.tlschallenge=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls=true
+      - --entrypoints.websecure.http.tls.certResolver=letsencrypt
+      - --entrypoints.websecure.http.tls.domains[0].main=${ROOT_DOMAIN}
+      - --entrypoints.websecure.http.tls.domains[0].sans=${WILDCARD_DOMAIN}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - traefik_network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/acme.json
+    labels:
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+  shipster-portainer:
+    image: portainer/portainer-ce:2.11.1
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - traefik_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${PORTAINER_DOMAIN}`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
+      - "traefik.http.routers.frontend.service=frontend"
+      - "traefik.http.routers.frontend.tls.certresolver=leresolver"
+      - "traefik.http.routers.edge.rule=Host(`${EDGE_DOMAIN}`)"
+      - "traefik.http.routers.edge.entrypoints=websecure"
+      - "traefik.http.services.edge.loadbalancer.server.port=8000"
+      - "traefik.http.routers.edge.service=edge"
+      - "traefik.http.routers.edge.tls.certresolver=leresolver"
+
+volumes:
+  postgres_data:
+  cache:
+  portainer_data:
+
+
+networks:
+  web:
+  traefik_network:
+    external: true

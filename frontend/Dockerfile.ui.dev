@@ -1,0 +1,15 @@
+# develop stage
+FROM node:14-alpine as develop-stage
+ENV NODE_ENV development
+# Add a work directory
+WORKDIR /frontend
+# Cache and Install dependencies
+COPY ./frontend/package.json .
+COPY ./frontend/yarn.lock .
+RUN yarn install
+# Copy app files
+COPY ./frontend .
+# Expose port
+EXPOSE 3000
+# Start the app
+CMD [ "yarn", "serve" ]

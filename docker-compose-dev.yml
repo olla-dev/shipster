@@ -1,0 +1,117 @@
+version: '3'
+
+services:
+  shipster-app:
+    container_name: shipster-app
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile.backend
+      args:
+        - DEV=true
+    env_file: .env
+    ports:
+      - ${DJANGO_DOCKER_PORT}:8080
+      - 8008:8008
+    volumes:
+      - ./backend:/app
+      - ./specs:/specs
+    command: >
+      sh -c "python3 /app/manage.py migrate --noinput &&\
+       gunicorn core.wsgi -b 0.0.0.0:8080 &\
+       daphne -b 0.0.0.0 -p 8008 core.asgi:application"
+    depends_on:
+      shipster-cache:
+        condition: service_healthy
+      shipster-db:
+        condition: service_healthy
+
+  shipster-frontend:
+    restart: always
+    env_file: .env
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile.ui.dev
+    container_name: shipster-frontend
+    depends_on:
+      - shipster-app
+      - shipster-db
+    volumes:
+      - ./frontend:/frontend
+    ports:
+      - 3000:3000
+
+  shipster-db:
+    container_name: shipster-db
+    image: "postgis/postgis:${POSTGRES_VERSION}"
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    ports:
+      - "${POSTGRES_DOCKER_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgres/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  shipster-cache:
+    image: redis:latest
+    restart: always
+    container_name: shipster-cache
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    volumes:
+      - cache:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  shipster-cache-ui:
+    container_name: shipster-cache-ui
+    hostname: shipster-cache-ui
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=1
+    ports:
+      - "8081:8081"
+
+  shipster-pgadmin:
+    container_name: shipster-pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
+      - PGADMIN_LISTEN_PORT=${PGADMIN_PORT}
+    ports:
+      - "${PGADMIN_PORT}:${PGADMIN_PORT}"
+    depends_on:
+      - shipster-db
+    restart: always
+
+  shipster-portainer:
+    image: portainer/portainer-ce:latest
+    container_name: shipster-portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer:/data
+    ports:
+      - 9000:9000
+
+volumes:
+  postgres_data:
+  cache:
+  portainer:
